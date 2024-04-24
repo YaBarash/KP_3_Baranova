@@ -1,20 +1,19 @@
 import json
 
 
-def get_all_operation():
+def get_all_operation(file_name):
     '''Открываем файл с операциями на чтение'''
-    with open('operation.json', 'r', encoding='UTF-8') as file:
-        operations_list = json.load(file)
+    with open(file_name, 'r', encoding='UTF-8') as file:
+        operations_list = json.loads(file.read())
         return operations_list
 
-
-def get_filtered_operation(operations_list):
+def get_executed_operations(operations_list):
     '''Выбираем нужные операции по статусу executed'''
-    filtered_operation = []
+    executed_operations = []
     for element in operations_list:
         if element.get('state') == 'EXECUTED':
-            filtered_operation.append(element)
-    return filtered_operation
+            executed_operations.append(element)
+    return executed_operations
 
 
 def get_date(operation):
@@ -22,10 +21,10 @@ def get_date(operation):
     return operation['date']
 
 
-def get_sort_operation(filtered_operation, count):
+def get_sort_operation(executed_operations, count):
     '''Сортируем 5 последних отфильтрованных операций по дате
     от конца к началу, используя функцию get_date'''
-    sorted_operation = sorted(filtered_operation, key=get_date, reverse=True)
+    sorted_operation = sorted(executed_operations, key=get_date, reverse=True)
     return sorted_operation[:count]
 
 
@@ -47,7 +46,7 @@ def get_update_operations_list(sorted_operation):
 
 def masking(element):
     '''Маскируем конкретный счета откуда выполнен перевод'''
-    if element != None:
+    if element:
         if element.lower().startswith('счет'):
             masked_account = element.split(' ')
             return masked_account[0] + ' ' + '*' * 2 + masked_account[-1][-4:]
@@ -55,7 +54,7 @@ def masking(element):
             masked_account = element.split(' ')
             ln_masked_account = len(masked_account)
             number_account_new = masked_account[ln_masked_account - 1][0:4] + ' ' + \
-                                 masked_account[ln_masked_account - 1][5:7] + '*' * 2 + ' ' * 2 + '*' * 4 + ' ' + \
+                                 masked_account[ln_masked_account - 1][4:6] + '*' * 2 + ' ' + '*' * 4 + ' ' + \
                                  masked_account[ln_masked_account - 1][-4:]
             masked_account[-1] = number_account_new
             return ' '.join(masked_account)
